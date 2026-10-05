@@ -2371,19 +2371,31 @@ function movel3D(m){
   switch (m.nome || m.tipo){
     case 'carro': {
       g.position.set(cx, 0, cz);
-      const perfil = new THREE.Shape(), L2 = D/2;   // silhueta do carro de lado (comprimento no eixo z)
-      perfil.moveTo(-L2, .32); perfil.lineTo(-L2 + .05, .72); perfil.quadraticCurveTo(-L2 + .2, .82, -L2 + .85, .86); perfil.lineTo(-L2 + 1.35, 1.36); perfil.quadraticCurveTo(-L2 + 1.5, 1.42, -L2 + 1.75, 1.42);
-      perfil.lineTo(L2 - 1.0, 1.42); perfil.quadraticCurveTo(L2 - .75, 1.4, L2 - .55, 1.2); perfil.lineTo(L2 - .22, .9); perfil.quadraticCurveTo(L2 - .02, .84, L2, .62); perfil.lineTo(L2, .32); perfil.closePath();
-      const corpo = new THREE.Mesh(new THREE.ExtrudeGeometry(perfil, {depth:W - .1, bevelEnabled:true, bevelThickness:.04, bevelSize:.04, bevelSegments:3}), MT.carro);
-      // frente do carro para o portão, como na planta
-      corpo.rotation.y = -Math.PI/2; corpo.position.set((W - .1)/2, 0, 0); corpo.castShadow = corpo.receiveShadow = true; g.add(corpo);
-      const janelas = new THREE.Shape(); janelas.moveTo(-L2 + .95, .9); janelas.lineTo(-L2 + 1.38, 1.33); janelas.lineTo(L2 - 1.02, 1.36); janelas.lineTo(L2 - .62, .92); janelas.closePath();
-      [-1, 1].forEach(s => { const v = new THREE.Mesh(new THREE.ShapeGeometry(janelas), MT.vidroCarro); v.rotation.y = s > 0 ? Math.PI/2 : -Math.PI/2; v.position.set(s*(W/2 - .005), 0, 0); if (s > 0) v.scale.x = -1; g.add(v); });
-      por(g, bx(W - .3, .4, .02, MT.vidroCarro), 0, 1.13, -L2 + 1.12).rotation.x = -.85;   // para-brisa
-      por(g, bx(W - .3, .36, .02, MT.vidroCarro), 0, 1.15, L2 - .8).rotation.x = .9;       // vidro de trás
-      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => { const r = por(g, cil(.31, .31, .2, MT.pneu, 20), sx*(W/2 - .08), .31, sz*(L2 - .62)); r.rotation.z = Math.PI/2; por(g, cil(.18, .18, .21, MT.metal, 14), sx*(W/2 - .08), .31, sz*(L2 - .62)).rotation.z = Math.PI/2; });
-      [-1, 1].forEach(s => { por(g, bx(.28, .1, .03, MT.lanterna), s*(W/2 - .22), .78, L2 + .02); por(g, bx(.26, .08, .03, padrao({color:'#F4F2E8', emissive:'#333'})), s*(W/2 - .22), .74, -L2 - .02); });
-      por(g, bx(.4, .12, .02, padrao({color:'#F2F2F2'})), 0, .5, L2 + .03);
+      const L2 = D/2;   // silhueta do carro de lado (comprimento no eixo z): porta-malas, cabine curta, capô longo
+      const perfil = new THREE.Shape();
+      perfil.moveTo(-L2, .33);
+      perfil.lineTo(-L2, .74);                                           // traseira
+      perfil.quadraticCurveTo(-L2 + .12, .97, -L2 + D*0.18, .99);        // tampa do porta-malas
+      perfil.lineTo(-L2 + D*0.34, 1.42);                                 // vidro traseiro (sobe pro teto)
+      perfil.lineTo(-L2 + D*0.60, 1.44);                                 // teto
+      perfil.lineTo(-L2 + D*0.74, .99);                                  // para-brisa (desce pro capô)
+      perfil.lineTo(L2 - .12, .9);                                       // capô
+      perfil.quadraticCurveTo(L2, .86, L2, .58);                         // frente
+      perfil.lineTo(L2, .33); perfil.closePath();
+      const corpo = new THREE.Mesh(new THREE.ExtrudeGeometry(perfil, {depth:W - .14, bevelEnabled:true, bevelThickness:.05, bevelSize:.05, bevelSegments:3}), MT.carro);
+      corpo.rotation.y = -Math.PI/2; corpo.position.set((W - .14)/2, 0, 0); corpo.castShadow = corpo.receiveShadow = true; g.add(corpo);
+      // vidros laterais (greenhouse)
+      const janelas = new THREE.Shape(); janelas.moveTo(-L2 + D*0.21, .99); janelas.lineTo(-L2 + D*0.35, 1.39); janelas.lineTo(-L2 + D*0.59, 1.41); janelas.lineTo(-L2 + D*0.72, .99); janelas.closePath();
+      [-1, 1].forEach(s => { const v = new THREE.Mesh(new THREE.ShapeGeometry(janelas), MT.vidroCarro); v.rotation.y = s > 0 ? Math.PI/2 : -Math.PI/2; v.position.set(s*(W/2 - .02), 0, 0); if (s > 0) v.scale.x = -1; g.add(v); });
+      // vidros vistos de cima (câmera do teto): teto de vidro, para-brisa e vidro traseiro escuros
+      por(g, bx(W - .5, .02, D*0.26, MT.vidroCarro), 0, 1.45, -L2 + D*0.47);                 // teto escuro
+      por(g, bx(W - .44, .52, .03, MT.vidroCarro), 0, 1.2, -L2 + D*0.69).rotation.x = .64;   // para-brisa
+      por(g, bx(W - .44, .48, .03, MT.vidroCarro), 0, 1.2, -L2 + D*0.27).rotation.x = -.72;  // vidro traseiro
+      // rodas
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => { por(g, cil(.32, .32, .22, MT.pneu, 20), sx*(W/2 - .06), .32, sz*(L2 - D*0.17)).rotation.z = Math.PI/2; por(g, cil(.19, .19, .23, MT.metal, 14), sx*(W/2 - .06), .32, sz*(L2 - D*0.17)).rotation.z = Math.PI/2; });
+      // faróis (frente, +L2) e lanternas (traseira, -L2)
+      [-1, 1].forEach(s => { por(g, bx(.34, .13, .05, padrao({color:'#FBFAEC', emissive:'#9aa', emissiveIntensity:.35})), s*(W/2 - .26), .8, L2 - .02); por(g, bx(.3, .12, .05, MT.lanterna), s*(W/2 - .26), .82, -L2 + .02); });
+      por(g, bx(.42, .12, .03, padrao({color:'#EFEFE8'})), 0, .52, L2 - .02);   // placa
       return g;
     }
     case 'sofa': {
