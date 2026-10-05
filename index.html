@@ -686,7 +686,7 @@ body.apr-on{overflow:hidden}
       <div class="g-2">
         <div class="card map-card"><div class="card-head"><h2>Casa agora</h2><button class="link" data-go="planta">Abrir planta completa</button></div><div class="map-wrap" id="pm-wrap"></div></div>
         <div class="card"><div class="card-head"><h2>Câmeras ao vivo</h2><button class="link" data-go="cameras">Ver todas</button></div>
-          <div class="cam-mini"><canvas data-cam="ent" width="640" height="360" data-go="cameras" aria-label="Câmera da entrada"></canvas><canvas id="cam-foco" data-cam="sala" width="640" height="360" data-go="cameras" aria-label="Câmera do último evento"></canvas><canvas data-cam="gar" width="640" height="360" data-go="cameras" aria-label="Câmera da garagem"></canvas><canvas data-cam="qui" width="640" height="360" data-go="cameras" aria-label="Câmera do quintal"></canvas></div>
+          <div class="cam-mini"><canvas data-cam="ent" width="640" height="360" data-go="cameras" aria-label="Câmera da entrada"></canvas><canvas id="cam-foco" data-cam="sala" width="640" height="360" data-go="cameras" aria-label="Câmera do último evento"></canvas><canvas data-cam="gar" width="640" height="360" data-go="cameras" aria-label="Câmera da garagem"></canvas><canvas data-cam="qui" width="640" height="360" data-go="cameras" aria-label="Câmera do quintal"></canvas><canvas data-cam="coz" width="640" height="360" data-go="cameras" aria-label="Câmera da cozinha"></canvas><canvas data-cam="serv" width="640" height="360" data-go="cameras" aria-label="Câmera da área de serviço"></canvas></div>
           <p class="hint">A câmera do canto superior direito acompanha o último acontecimento da casa. A inteligência artificial separa pessoas de animais. Veja todas na aba Câmeras.</p></div>
       </div>
       <div class="g-3">
@@ -2788,7 +2788,23 @@ function mobiliaPlanta(){
   MOVEIS.forEach(m => {
     const {x, y, w, h:hh} = m;
     switch (m.nome || m.tipo){
-      case 'carro': h += `<path class="furn" d="M${x + 10} ${y} H${x + w - 10} Q${x + w} ${y} ${x + w} ${y + 16} V${y + hh - 12} Q${x + w} ${y + hh} ${x + w - 12} ${y + hh} H${x + 12} Q${x} ${y + hh} ${x} ${y + hh - 12} V${y + 16} Q${x} ${y} ${x + 10} ${y}Z"/>` + L(`M${x + 8} ${y + 34} Q${x + w/2} ${y + 26} ${x + w - 8} ${y + 34} M${x + 10} ${y + hh - 30} Q${x + w/2} ${y + hh - 24} ${x + w - 10} ${y + hh - 30} M${x + 10} ${y + 34} V${y + hh - 30} M${x + w - 10} ${y + 34} V${y + hh - 30}`) + [[x - 6, y + 18], [x + w, y + 18], [x - 6, y + hh - 42], [x + w, y + hh - 42]].map(([a, b]) => r(a, b, 6, 24, 2)).join(''); break;
+      case 'carro': {
+        const cx = x + w/2;
+        // rodas (aparecem pra fora das laterais)
+        h += [[x - 5, y + 22], [x + w - 1, y + 22], [x - 5, y + hh - 44], [x + w - 1, y + hh - 44]].map(([a, b]) => r(a, b, 6, 22, 2)).join('');
+        // corpo
+        h += `<path class="furn" d="M${x + 14} ${y} H${x + w - 14} Q${x + w} ${y} ${x + w} ${y + 18} V${y + hh - 16} Q${x + w} ${y + hh} ${x + w - 14} ${y + hh} H${x + 14} Q${x} ${y + hh} ${x} ${y + hh - 16} V${y + 18} Q${x} ${y} ${x + 14} ${y}Z"/>`;
+        // cabine: para-brisa, teto e vidro traseiro
+        h += L(`M${x + 20} ${y + 44} H${x + w - 20} L${x + w - 14} ${y + 60} V${y + hh - 54} L${x + w - 20} ${y + hh - 38} H${x + 20} L${x + 14} ${y + hh - 54} V${y + 60} Z`);
+        // teto
+        h += r(x + 18, y + 62, w - 36, hh - 120, 4, 'furnl');
+        // capô: vinco central e faróis
+        h += L(`M${cx} ${y + 7} V${y + 40}`, 'furnl fino');
+        h += r(x + 8, y + 5, 12, 7, 2) + r(x + w - 20, y + 5, 12, 7, 2);
+        // retrovisores
+        h += r(x - 7, y + 48, 7, 5, 1) + r(x + w, y + 48, 7, 5, 1);
+        break;
+      }
       case 'sofa': h += r(x, y, w, hh, 4) + r(x, y + hh - 8, w, 8, 2) + r(x, y, 7, hh, 2) + r(x + w - 7, y, 7, hh, 2) + L(`M${x + 7 + (w - 14)/3} ${y} V${y + hh - 8} M${x + 7 + 2*(w - 14)/3} ${y} V${y + hh - 8}`); break;
       case 'tapete': h += r(x, y, w, hh, 2, 'furn', 'stroke-dasharray="4 3"'); break;
       case 'mesaCentro': h += r(x, y, w, hh, 3); break;
