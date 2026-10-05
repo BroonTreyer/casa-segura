@@ -151,12 +151,12 @@
   color-scheme:dark;
 }
 @media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
-  --bg:#EDF0F5; --panel:#FFFFFF; --panel2:#F4F6FA; --ink:#0E1626; --muted:#5A6679; --line:#DCE1E9;
+  --bg:#EDF0F5; --panel:#FFFFFF; --panel2:#F4F6FA; --ink:#0E1626; --muted:#4F5A6E; --line:#DCE1E9;
   --accent:#2456E0; --on-accent:#FFFFFF;
   --ok:#0F8A55; --warn:#B26800; --danger:#D1243A; --glow:#F5B82E;
   --floor:#F7F9FC; --wall:#2B3953; --shadow:0 18px 40px -22px rgba(20,30,60,.35); color-scheme:light}}
 :root[data-theme="light"]{
-  --bg:#EDF0F5; --panel:#FFFFFF; --panel2:#F4F6FA; --ink:#0E1626; --muted:#5A6679; --line:#DCE1E9;
+  --bg:#EDF0F5; --panel:#FFFFFF; --panel2:#F4F6FA; --ink:#0E1626; --muted:#4F5A6E; --line:#DCE1E9;
   --accent:#2456E0; --on-accent:#FFFFFF;
   --ok:#0F8A55; --warn:#B26800; --danger:#D1243A; --glow:#F5B82E;
   --floor:#F7F9FC; --wall:#2B3953; --shadow:0 18px 40px -22px rgba(20,30,60,.35); color-scheme:light}
@@ -193,7 +193,7 @@ button{cursor:pointer}
 .nav .badge{margin-left:auto;background:var(--danger);color:#fff;border-radius:99px;font-size:.7rem;padding:0 7px;font-family:var(--f-mono)}
 .side-foot{margin-top:auto;font-size:.78rem;color:var(--muted);padding:10px;border-radius:10px;background:var(--panel2);display:flex;flex-direction:column;gap:3px}
 .side-foot b{color:var(--ink)}
-.main{min-width:0;padding-inline:26px;padding-block:0 60px}
+.main{min-width:0;padding-inline:26px;padding-block:0 84px}
 .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-block:16px;border-bottom:1px solid var(--line);margin-bottom:20px}
 .topbar h1{font-size:1.45rem;font-weight:800}
 .meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
@@ -566,7 +566,7 @@ td input.inp{max-width:150px;padding:5px 8px}
 .kp-hint{font-size:.76rem;color:var(--muted);background:var(--panel2);border-radius:10px;padding:8px 10px;line-height:1.5;border:1px dashed var(--line)}
 .kp-hint b{color:var(--ink)}
 .keypad.shake{animation:shake .35s}
-.toasts{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:16px;z-index:45;display:flex;flex-direction:column;gap:8px;width:min(360px,calc(100% - 32px))}
+.toasts{position:fixed;top:calc(74px + env(safe-area-inset-top,0px));right:16px;z-index:45;display:flex;flex-direction:column;gap:8px;width:min(360px,calc(100% - 32px))}
 .demo-on .toasts{right:396px}
 @media (max-width:800px){.demo-on .toasts{right:16px}}
 .toast{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px 13px;box-shadow:var(--shadow);font-size:.84rem;line-height:1.38;animation:drop .3s ease-out}
@@ -728,7 +728,7 @@ body.apr-on{overflow:hidden}
     <!-- AUTOMAÇÕES -->
     <section class="view" data-v="automacoes" hidden>
       <div class="g-auto">
-        <div class="col"><p class="muted" style="max-width:66ch">Automações são regras do tipo <b>quando acontecer isso, faça aquilo</b>. Nesta casa de exemplo elas usam acessórios: luzes e fechadura (planejadas para a versão Pro) e a válvula de água.</p><div class="rules" id="au-list"></div></div>
+        <div class="col"><p class="muted" style="max-width:66ch">Automações são regras do tipo <b>quando acontecer isso, faça aquilo</b>. Algumas usam acessórios da <b>versão Pro</b> (luzes e fechadura) — aqui elas rodam em <b>simulação</b>, só para você ver o resultado. A válvula de água já faz parte do kit.</p><div class="rules" id="au-list"></div></div>
         <form class="card" id="au-form" novalidate>
           <h2>Criar automação</h2>
           <label class="f">Nome<input class="inp" id="au-name" maxlength="48" placeholder="Ex.: Luz da garagem ao chegar"></label>
@@ -2951,7 +2951,7 @@ const battHTML = b => b == null ? '<span class="muted">Ligado na tomada</span>' 
 function computeScore(){
   const items = [];
   DEVICES.filter(d => isPerim(d) && d.open).forEach(d => items.push([`${d.name} aberta`, 6]));
-  if (allAway() && !isArmed(S.mode)) items.push(['Ninguém em casa e alarme desligado', 25]);
+  if (!isArmed(S.mode) && !S.alarm){ items.push(['Alarme desligado', 20]); if (allAway()) items.push(['Ninguém em casa', 20]); }
   DEVICES.filter(d => d.tamper).forEach(d => items.push([`${d.name} arrancado`, 15]));
   DEVICES.filter(d => d.bat != null && d.bat < 20).forEach(d => items.push([`Pilha fraca: ${d.name}`, 5]));
   if (S.lock !== 'trancada' && (isArmed(S.mode) || isNight())) items.push(['Porta da frente destrancada', 8]);
@@ -2970,18 +2970,22 @@ const VIEWS = [
   ['automacoes','Automações'], ['familia','Família e acessos'], ['relatorios','Relatórios'], ['sistema','Sistema']
 ];
 function buildNav(){
-  $('#nav').innerHTML = VIEWS.map(([id, label]) => `<button data-view="${id}">${ic(id)}<span>${label}</span>${id === 'eventos' ? '<em class="badge" id="nav-badge" hidden></em>' : ''}</button>`).join('');
+  $('#nav').innerHTML = VIEWS.map(([id, label]) => `<button data-view="${id}" aria-label="${label}" title="${label}">${ic(id)}<span>${label}</span>${id === 'eventos' ? '<em class="badge" id="nav-badge" hidden></em>' : ''}</button>`).join('');
   $('#nav').addEventListener('click', e => { const b = e.target.closest('[data-view]'); if (b) go(b.dataset.view); });
 }
-function go(v){
+function go(v, replace){
+  if (!VIEWS.some(x => x[0] === v)) v = 'painel';
   S.view = v;
   $$('.view').forEach(s => s.hidden = s.dataset.v !== v);
   $$('#nav button').forEach(b => b.setAttribute('aria-current', b.dataset.view === v ? 'page' : 'false'));
   $('#vtitle').textContent = VIEWS.find(x => x[0] === v)[1];
-  try { if (location.hash.slice(1) !== v) history.replaceState(null, '', '#' + v); } catch(e){}
+  try { if (location.hash.slice(1) !== v){ if (replace) history.replaceState(null, '', '#' + v); else history.pushState(null, '', '#' + v); } } catch(e){}
   render();
   window.scrollTo({top:0});
 }
+// deep-link + voltar/avançar do navegador: re-renderiza ao mudar o hash
+window.addEventListener('hashchange', () => { const v = location.hash.slice(1) || 'painel'; if (v !== S.view) go(v, true); });
+window.addEventListener('popstate', () => { const v = location.hash.slice(1) || 'painel'; if (v !== S.view) go(v, true); });
 function render(){
   renderTop();
   updateMap('pm'); updateMap('pl');
@@ -3040,7 +3044,8 @@ function renderHero(){
   el.dataset.tone = tone;
   if (!el.firstChild) el.innerHTML = `<div class="ico"></div><div class="txt"><span class="eyebrow">Status da casa</span><div class="big"></div><p></p></div><div class="actions"></div>`;
   put($(".ico", el), ic(icon)); put($(".big", el), big); put($(".txt p", el), txt); put($(".actions", el), actions);
-  $$('#p-modes .mode').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)));
+  const activeMode = S.arming ? S.arming.mode : S.mode;
+  $$('#p-modes .mode').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === activeMode)));
 }
 function renderPainel(){
   renderHero();
@@ -3611,6 +3616,7 @@ function bind(){
       if (/^[0-9]$/.test(e.key)){ e.preventDefault(); press(e.key); }
       else if (e.key === 'Backspace'){ e.preventDefault(); press('⌫'); }
       else if (e.key === 'Escape') closeKeypad();
+      else if (e.key === 'Tab'){ const f = $$('#keypad button'); if (f.length){ const first = f[0], last = f[f.length - 1]; if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); } else if (!$('#keypad').contains(document.activeElement)){ e.preventDefault(); first.focus(); } } }
       return;
     }
     if (e.shiftKey && (e.key === 'D' || e.key === 'd') && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)){ e.preventDefault(); setDemo(!S.demo); }
@@ -3688,7 +3694,7 @@ if (TEM3D){ try { construirMundo(); } catch(e){ console.warn('3D indisponível, 
 buildNav(); bind(); seed();
 $('#t-user').textContent = S.family[0].name; $('#t-avatar').textContent = S.family[0].name[0];
 const start = location.hash.slice(1);
-go(VIEWS.some(v => v[0] === start) ? start : 'painel');
+go(VIEWS.some(v => v[0] === start) ? start : 'painel', true);
 observarCameras();
 requestAnimationFrame(loop);
 })();
