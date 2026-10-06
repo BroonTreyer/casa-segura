@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "author": "Casa Segura",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-lcd1602", "id": "lcd", "top": -160, "left": 180, "attrs": { "pins": "i2c" } },
+    { "type": "wokwi-membrane-keypad", "id": "kp", "top": 180, "left": -300, "attrs": {} },
+    { "type": "wokwi-pir-motion-sensor", "id": "pir", "top": -180, "left": -200, "attrs": {} },
+    { "type": "wokwi-buzzer", "id": "bz", "top": 120, "left": 260, "attrs": { "volume": "0.05" } },
+    { "type": "wokwi-led", "id": "ledg", "top": -120, "left": -80, "attrs": { "color": "green" } },
+    { "type": "wokwi-led", "id": "ledr", "top": -120, "left": -20, "attrs": { "color": "red" } },
+    { "type": "wokwi-resistor", "id": "rg", "top": -60, "left": -90, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "rr", "top": -60, "left": -30, "attrs": { "value": "220" } },
+    { "type": "wokwi-pushbutton", "id": "bPorta",  "top": 220, "left": 160, "attrs": { "color": "green" } },
+    { "type": "wokwi-pushbutton", "id": "bJanela", "top": 300, "left": 160, "attrs": { "color": "blue" } },
+    { "type": "wokwi-pushbutton", "id": "bFumaca", "top": 380, "left": 160, "attrs": { "color": "red" } },
+    { "type": "wokwi-pushbutton", "id": "bAgua",   "top": 460, "left": 160, "attrs": { "color": "yellow" } }
+  ],
+  "connections": [
+    [ "lcd:SDA", "esp:D21", "green", [] ],
+    [ "lcd:SCL", "esp:D22", "green", [] ],
+    [ "lcd:VCC", "esp:3V3", "red", [] ],
+    [ "lcd:GND", "esp:GND.1", "black", [] ],
+
+    [ "kp:R1", "esp:D13", "#a05a2c", [] ],
+    [ "kp:R2", "esp:D12", "#a05a2c", [] ],
+    [ "kp:R3", "esp:D14", "#a05a2c", [] ],
+    [ "kp:R4", "esp:D27", "#a05a2c", [] ],
+    [ "kp:C1", "esp:D26", "#6a3d9a", [] ],
+    [ "kp:C2", "esp:D25", "#6a3d9a", [] ],
+    [ "kp:C3", "esp:D33", "#6a3d9a", [] ],
+    [ "kp:C4", "esp:D32", "#6a3d9a", [] ],
+
+    [ "pir:VCC", "esp:3V3", "red", [] ],
+    [ "pir:GND", "esp:GND.2", "black", [] ],
+    [ "pir:OUT", "esp:D19", "blue", [] ],
+
+    [ "bz:1", "esp:D23", "purple", [] ],
+    [ "bz:2", "esp:GND.2", "black", [] ],
+
+    [ "bPorta:1.l",  "esp:D15", "gold", [] ],
+    [ "bPorta:2.l",  "esp:GND.3", "black", [] ],
+    [ "bJanela:1.l", "esp:D4",  "gold", [] ],
+    [ "bJanela:2.l", "esp:GND.3", "black", [] ],
+    [ "bFumaca:1.l", "esp:D5",  "gold", [] ],
+    [ "bFumaca:2.l", "esp:GND.3", "black", [] ],
+    [ "bAgua:1.l",   "esp:D18", "gold", [] ],
+    [ "bAgua:2.l",   "esp:GND.3", "black", [] ],
+
+    [ "esp:TX2", "rg:1", "green", [] ],
+    [ "rg:2", "ledg:A", "green", [] ],
+    [ "ledg:C", "esp:GND.1", "black", [] ],
+    [ "esp:RX2", "rr:1", "red", [] ],
+    [ "rr:2", "ledr:A", "red", [] ],
+    [ "ledr:C", "esp:GND.1", "black", [] ]
+  ]
+}
